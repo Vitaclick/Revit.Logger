@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Revit.Logger", "Revit.Logger.csproj", "{481E9E4D-7509-4575-923F-4F55A586A63A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		2017 addin|Any CPU = 2017 addin|Any CPU
+		2017 debug|Any CPU = 2017 debug|Any CPU
+		2017 release|Any CPU = 2017 release|Any CPU
+		2019 addin|Any CPU = 2019 addin|Any CPU
+		2019 debug|Any CPU = 2019 debug|Any CPU
+		2019 release|Any CPU = 2019 release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 addin|Any CPU.ActiveCfg = 2017 addin|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 addin|Any CPU.Build.0 = 2017 addin|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 debug|Any CPU.ActiveCfg = 2017 debug|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 debug|Any CPU.Build.0 = 2017 debug|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 release|Any CPU.ActiveCfg = 2017 release|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2017 release|Any CPU.Build.0 = 2017 release|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 addin|Any CPU.ActiveCfg = 2019 addin|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 addin|Any CPU.Build.0 = 2019 addin|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 debug|Any CPU.ActiveCfg = 2019 debug|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 debug|Any CPU.Build.0 = 2019 debug|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 release|Any CPU.ActiveCfg = 2019 release|Any CPU
+		{481E9E4D-7509-4575-923F-4F55A586A63A}.2019 release|Any CPU.Build.0 = 2019 release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {04FF1D2A-5D7E-4E91-990E-0F7FC3A3246D}
+	EndGlobalSection
+EndGlobal

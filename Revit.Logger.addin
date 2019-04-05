@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>Command Revit.Logger</Text>
+    <Description>Some description for Revit.Logger</Description>
+    <Assembly>Revit.Logger.dll</Assembly>
+    <FullClassName>Revit.Logger.Command</FullClassName>
+    <ClientId>8cc4dccd-f06e-4632-824a-cb1d0db51269</ClientId>
+    <VendorId>com.typepad.thebuildingcoder</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>Application Revit.Logger</Name>
+    <Assembly>Revit.Logger.dll</Assembly>
+    <FullClassName>Revit.Logger.App</FullClassName>
+    <ClientId>b851a738-d9b5-44a8-9187-54d5c47aad77</ClientId>
+    <VendorId>com.typepad.thebuildingcoder</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
