@@ -15,12 +15,27 @@ namespace Revit.Logger
 {
   class App : IExternalApplication
   {
+    public class SiteWarning : IFailuresPreprocessor
+    {
+      public FailureProcessingResult PreprocessFailures(FailuresAccessor failuresAccessor)
+      {
+        IList<FailureMessageAccessor> failures = failuresAccessor.GetFailureMessages();
+        foreach (var f in failures)
+        {
+          var id = f.GetFailureDefinitionId();
+        }
+
+        return FailureProcessingResult.Continue;
+      }
+    }
     public Result OnStartup(UIControlledApplication a)
     {
       try
       {
         a.ControlledApplication.DocumentChanged += new EventHandler<DocumentChangedEventArgs>(OnDocumentChanged);
         a.DialogBoxShowing += new EventHandler<Autodesk.Revit.UI.Events.DialogBoxShowingEventArgs>(AppDialogShowing);
+        a.ControlledApplication.FailuresProcessing += (OnFailureProcessings);
+
 
       }
       catch (Exception e)
@@ -32,6 +47,7 @@ namespace Revit.Logger
       return Result.Succeeded;
     }
 
+
     public Result OnShutdown(UIControlledApplication a)
     {
       a.ControlledApplication.DocumentChanged -= new EventHandler<DocumentChangedEventArgs>(
@@ -39,6 +55,29 @@ namespace Revit.Logger
       return Result.Succeeded;
     }
 
+    void OnFailureProcessings(object sender, FailuresProcessingEventArgs args)
+    {
+      FailuresAccessor f = args.GetFailuresAccessor();
+
+      string transName = f.GetTransactionName();
+
+      IList<FailureMessageAccessor> fmas = f.GetFailureMessages();
+
+      if (transName.Equals("Change shared coordinates in source"))
+      {
+        Debug.Write("lolkek");
+      }
+
+      if (fmas.Count == 0)
+      {
+        args.SetProcessingResult(FailureProcessingResult.Continue);
+      }
+
+    }
+    void OnDysplayOptinsDialog(object sender, DisplayingOptionsDialogEventArgs e)
+    {
+      var c = e.PagesCount;
+    }
     void AppDialogShowing(object sender, DialogBoxShowingEventArgs args)
     {
       if (args is TaskDialogShowingEventArgs e)
