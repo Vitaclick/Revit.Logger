@@ -1,4 +1,4 @@
-#region Namespaces
+п»ї#region Namespaces
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -70,8 +70,8 @@ namespace Revit.Logger
       View vCurrent = args.CurrentActiveView;
       Document currentActiveDoc = vCurrent.Document;
 
-      // Сохранение имени активного документа для использования в 
-      // валидации изменения площадки !текущего файла!
+      // РЎРѕС…СЂР°РЅРµРЅРёРµ РёРјРµРЅРё Р°РєС‚РёРІРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ 
+      // РІР°Р»РёРґР°С†РёРё РёР·РјРµРЅРµРЅРёСЏ РїР»РѕС‰Р°РґРєРё !С‚РµРєСѓС‰РµРіРѕ С„Р°Р№Р»Р°!
       Globals.ActiveDocumentTitle = currentActiveDoc.Title;
     }
 
@@ -81,7 +81,7 @@ namespace Revit.Logger
 
       var modifiedElementsId = args.GetModifiedElementIds();
 
-      // Кэширование данных (маркеры изменения координат)
+      // РљСЌС€РёСЂРѕРІР°РЅРёРµ РґР°РЅРЅС‹С… (РјР°СЂРєРµСЂС‹ РёР·РјРµРЅРµРЅРёСЏ РєРѕРѕСЂРґРёРЅР°С‚)
       ProjectLocation projectLocation = null;
       SiteLocation siteLocation = null;
       RevitLinkInstance rvtPositionProvider = null;
@@ -90,10 +90,10 @@ namespace Revit.Logger
       foreach (var elementId in modifiedElementsId) {
         var element = elementDoc.GetElement(elementId);
 
-        // Пропускаем элементы, не относящиеся к данному файлу
+        // РџСЂРѕРїСѓСЃРєР°РµРј СЌР»РµРјРµРЅС‚С‹, РЅРµ РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє РґР°РЅРЅРѕРјСѓ С„Р°Р№Р»Сѓ
         if (element.Document.Title != Globals.ActiveDocumentTitle)
           continue;
-        // Проверяем категорию изменённого элемента на принадлежность к маркерам изменения общих координат
+        // РџСЂРѕРІРµСЂСЏРµРј РєР°С‚РµРіРѕСЂРёСЋ РёР·РјРµРЅС‘РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє РјР°СЂРєРµСЂР°Рј РёР·РјРµРЅРµРЅРёСЏ РѕР±С‰РёС… РєРѕРѕСЂРґРёРЅР°С‚
         switch (element) {
           case ProjectLocation loc:
             projectLocation = loc.Document.ActiveProjectLocation;
@@ -110,17 +110,17 @@ namespace Revit.Logger
         }
       }
 
-      // Фильтруем события, не относящиеся к изменению площадок
+      // Р¤РёР»СЊС‚СЂСѓРµРј СЃРѕР±С‹С‚РёСЏ, РЅРµ РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє РёР·РјРµРЅРµРЅРёСЋ РїР»РѕС‰Р°РґРѕРє
       if (projectLocation == null) return;
 
-      // ИВЕНТ ПРИНЯТИЯ КООРДИНАТ ИЗ СВЯЗИ
+      // РР’Р•РќРў РџР РРќРЇРўРРЇ РљРћРћР Р”РРќРђРў РР— РЎР’РЇР—Р
       if (siteLocation != null &&
           (rvtPositionProvider != null || dwgPositionProvider != null)) {
 
-        // не самый рабочий вариант, т.к. некрасивый и в случае с dwg - не предоставляет имя площадки провайдера
+        // РЅРµ СЃР°РјС‹Р№ СЂР°Р±РѕС‡РёР№ РІР°СЂРёР°РЅС‚, С‚.Рє. РЅРµРєСЂР°СЃРёРІС‹Р№ Рё РІ СЃР»СѓС‡Р°Рµ СЃ dwg - РЅРµ РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РёРјСЏ РїР»РѕС‰Р°РґРєРё РїСЂРѕРІР°Р№РґРµСЂР°
         var positionProviderName = dwgPositionProvider != null ? dwgPositionProvider.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() : rvtPositionProvider.Name;
 
-        // Извлечение имени площадки файла-провайдера
+        // РР·РІР»РµС‡РµРЅРёРµ РёРјРµРЅРё РїР»РѕС‰Р°РґРєРё С„Р°Р№Р»Р°-РїСЂРѕРІР°Р№РґРµСЂР°
         string extractedSiteName = null;
         var providerSiteName = positionProviderName.Split(':');
         if (providerSiteName.Count() > 1)
@@ -137,7 +137,7 @@ namespace Revit.Logger
                       $"ProviderSiteName: {extractedSiteName}";
       }
 
-      // ИВЕНТ ИЗМЕНЕНИЯ КООРДИНАТ В ПРОЕКТЕ
+      // РР’Р•РќРў РР—РњР•РќР•РќРРЇ РљРћРћР Р”РРќРђРў Р’ РџР РћР•РљРўР•
       if (siteLocation == null) {
         var logging = $"ProviderFileName: {Globals.ActiveDocumentTitle}" +
                       $"SiteName: {projectLocation.Name}" +
