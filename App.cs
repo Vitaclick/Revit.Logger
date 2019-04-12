@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -15,35 +16,19 @@ namespace Revit.Logger
 {
   class App : IExternalApplication
   {
-    public class SiteWarning : IFailuresPreprocessor
-    {
-      public FailureProcessingResult PreprocessFailures(FailuresAccessor failuresAccessor)
-      {
-        IList<FailureMessageAccessor> failures = failuresAccessor.GetFailureMessages();
-        foreach (var f in failures)
-        {
-          var id = f.GetFailureDefinitionId();
-        }
 
-        return FailureProcessingResult.Continue;
-      }
-    }
     public Result OnStartup(UIControlledApplication a)
     {
-      try
-      {
+      try {
+
         a.ControlledApplication.DocumentChanged += new EventHandler<DocumentChangedEventArgs>(OnDocumentChanged);
-        a.DialogBoxShowing += new EventHandler<Autodesk.Revit.UI.Events.DialogBoxShowingEventArgs>(AppDialogShowing);
+        a.ViewActivated += new EventHandler<ViewActivatedEventArgs>(OnViewActivated);
         a.ControlledApplication.FailuresProcessing += (OnFailureProcessings);
-
-
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
         Debug.WriteLine(e.Message);
         return Result.Failed;
       }
-
       return Result.Succeeded;
     }
 
@@ -51,7 +36,9 @@ namespace Revit.Logger
     public Result OnShutdown(UIControlledApplication a)
     {
       a.ControlledApplication.DocumentChanged -= new EventHandler<DocumentChangedEventArgs>(
-        OnDocumentChanged );
+        OnDocumentChanged);
+      a.ViewActivated += new EventHandler<ViewActivatedEventArgs>(OnViewActivated);
+
       return Result.Succeeded;
     }
 
@@ -63,46 +50,98 @@ namespace Revit.Logger
 
       IList<FailureMessageAccessor> fmas = f.GetFailureMessages();
 
-      if (transName.Equals("Change shared coordinates in source"))
-      {
+      if (transName.Equals("Change shared coordinates in source")) {
         Debug.Write("lolkek");
       }
 
-      if (fmas.Count == 0)
-      {
+      if (fmas.Count == 0) {
         args.SetProcessingResult(FailureProcessingResult.Continue);
       }
 
     }
-    void OnDysplayOptinsDialog(object sender, DisplayingOptionsDialogEventArgs e)
-    {
-      var c = e.PagesCount;
-    }
-    void AppDialogShowing(object sender, DialogBoxShowingEventArgs args)
-    {
-      if (args is TaskDialogShowingEventArgs e)
-      {
-        var type = e.DialogId;
-        var msg = e.Message;
 
+    public static class Globals
+    {
+      public static string ActiveDocumentTitle;
+    }
+
+    void OnViewActivated(object sender, ViewActivatedEventArgs args)
+    {
+      View vCurrent = args.CurrentActiveView;
+      Document currentActiveDoc = vCurrent.Document;
+
+      // Сохранение имени активного документа для использования в 
+      // валидации изменения площадки !текущего файла!
+      Globals.ActiveDocumentTitle = currentActiveDoc.Title;
+    }
+
+    void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
+    {
+      var elementDoc = args.GetDocument();
+
+      var modifiedElementsId = args.GetModifiedElementIds();
+
+      // Кэширование данных (маркеры изменения координат)
+      ProjectLocation projectLocation = null;
+      SiteLocation siteLocation = null;
+      RevitLinkInstance rvtPositionProvider = null;
+      ImportInstance dwgPositionProvider = null;
+
+      foreach (var elementId in modifiedElementsId) {
+        var element = elementDoc.GetElement(elementId);
+
+        // Пропускаем элементы, не относящиеся к данному файлу
+        if (element.Document.Title != Globals.ActiveDocumentTitle)
+          continue;
+        // Проверяем категорию изменённого элемента на принадлежность к маркерам изменения общих координат
+        switch (element) {
+          case ProjectLocation loc:
+            projectLocation = loc.Document.ActiveProjectLocation;
+            break;
+          case RevitLinkInstance link:
+            rvtPositionProvider = link;
+            break;
+          case ImportInstance link:
+            dwgPositionProvider = link;
+            break;
+          case SiteLocation site:
+            siteLocation = site;
+            break;
+        }
       }
 
-    }
-    void OnDocumentChanged(object sender, DocumentChangedEventArgs e)
-    {
-      var list = new List<String>();
-      var op = e.Operation;
-      var kek = e.GetModifiedElementIds();
-      var doc = e.GetDocument();
-      var docname = doc.Title;
-      foreach (var element in kek)
-      {
-        var el = doc.GetElement(element);
+      // Фильтруем события, не относящиеся к изменению площадок
+      if (projectLocation == null) return;
 
-        list.Add(el.Name);
+      // ИВЕНТ ПРИНЯТИЯ КООРДИНАТ ИЗ СВЯЗИ
+      if (siteLocation != null &&
+          (rvtPositionProvider != null || dwgPositionProvider != null)) {
 
+        // не самый рабочий вариант, т.к. некрасивый и в случае с dwg - не предоставляет имя площадки провайдера
+        var positionProviderName = dwgPositionProvider != null ? dwgPositionProvider.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() : rvtPositionProvider.Name;
 
+        // Извлечение имени площадки файла-провайдера
+        string extractedSiteName = null;
+        var providerSiteName = positionProviderName.Split(':');
+        if (providerSiteName.Count() > 1)
+        {
+          var providerFileName = providerSiteName.Last().Trim();
+          var spaceIdx = providerFileName.IndexOf(" ", StringComparison.Ordinal) + 1;
 
+          extractedSiteName = providerFileName.Substring(spaceIdx);
+        }
+
+        var logging = $"ProviderFileName: {positionProviderName}" +
+                      $"SiteName: {projectLocation.Name}" +
+                      $"ParentFile: {Globals.ActiveDocumentTitle}" +
+                      $"ProviderSiteName: {extractedSiteName}";
+      }
+
+      // ИВЕНТ ИЗМЕНЕНИЯ КООРДИНАТ В ПРОЕКТЕ
+      if (siteLocation == null) {
+        var logging = $"ProviderFileName: {Globals.ActiveDocumentTitle}" +
+                      $"SiteName: {projectLocation.Name}" +
+                      $"ParentFile: {Globals.ActiveDocumentTitle}";
       }
     }
   }
